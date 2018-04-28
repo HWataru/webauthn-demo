@@ -2,6 +2,15 @@ const express  = require('express');
 const utils    = require('../utils');
 const router   = express.Router();
 const database = require('./db');
+const i18n = require('i18n');
+
+router.get('/',(req,res,next) => {
+    const locale = i18n.getCatalog(req, i18n.getLocale(req));
+    if(req.query.mode && req.query.mode == 'password'){
+        return res.render('password', { locale: locale });
+    }
+    return res.render('webauthn', { locale: locale });
+})
 
 /* Returns if user is logged in */
 router.get('/isLoggedIn', (request, response) => {

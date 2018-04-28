@@ -1,0 +1,46 @@
+doctype html
+html
+  head
+    title= locale.title
+    link(rel='stylesheet', href='css/milligram.min.css')
+    style.
+      html, body, .container, .row {
+      height: 100%;
+      }
+      .formcontainer {
+      background: #f0f0f0;
+      padding: 15px;
+      }
+      .formcontainer form, .formcontainer fieldset{
+      margin:0;
+      }
+      .secretcontainer {
+      background: #f0f0f0;
+      padding: 15px;
+      }
+      #registerContainer, #mainContainer {
+      display: none;
+      }
+  body
+  .container
+    .row.row-center
+      block content
+      #mainContainer.column
+        .secretcontainer
+          h3!=`${locale.welcome} <span id="name"></span> !`
+          #theSecret
+          button#logoutButton= locale.logout
+  script(src='js/jquery-3.2.1.min.js')
+  script(src='js/utils.js')
+  script(src='js/base64url-arraybuffer.js')
+  script(src='js/view.js')
+  script(src='js/password.auth.js')
+  script(src='js/webauthn.auth.js')
+  script.
+    $(document).ready(() => {
+    checkIfLoggedIn()
+    .then((response) => {
+    if(response)
+    return loadMainContainer()
+    })
+    })

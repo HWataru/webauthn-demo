@@ -1,0 +1,23 @@
+extend layout
+block content
+  #registerContainer.column
+    .formcontainer.register
+      h3=locale.register
+      form#register
+        fieldset
+          label(for='name')= locale.name
+          input(type='text', name='name')
+          label(for='username')= locale.username
+          input(type='text', name='username')
+          input.button-primary(type='submit', value=locale.registerButton)
+      a#toLogin(href='#')= locale.toLogin
+  #loginContainer.column
+    a(href='./?mode=password')= locale.toPasswordLogin
+    .formcontainer.login
+      h3= locale.login
+      form#login
+        fieldset
+          label(for='nameField')= locale.username
+          input(type='text', name='username')
+          input.button-primary(type='submit', value=locale.loginButton)
+      a#toRegistration(href='#')= locale.toRegister

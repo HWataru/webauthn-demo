@@ -17,7 +17,7 @@ router.post('/register', (request, response) => {
     let password = request.body.password;
     let name     = request.body.name;
 
-    if(database[username]) {
+    if(database[username] && database[username].password) {
         response.json({
             'status': 'failed',
             'message': `Username ${username} already exists`
@@ -26,11 +26,14 @@ router.post('/register', (request, response) => {
         return
     }
 
-
-    database[username] = {
-        'password': password,
-        'name': name,
-        'id': utils.randomBase64URLBuffer()
+    if(!database[username]){
+        database[username] = {
+            'password': password,
+            'name': name,
+            'id': utils.randomBase64URLBuffer()
+        }    
+    } else {
+        database[username].password = password;
     }
 
     request.session.loggedIn = true;

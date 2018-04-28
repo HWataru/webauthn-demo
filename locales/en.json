@@ -1,0 +1,15 @@
+{
+    "title": "WebAuthn Sample",
+    "name": "display name",
+    "username": "username",
+    "password": "password",
+    "register": "Register Page",
+    "login": "Login Page",
+    "loginButton": "Login",
+    "toRegister": "Not registered yet? Registration",
+    "toLogin": "Already registered? Login page",
+    "toPasswordLogin": "Password Login",
+    "toWebAuthnLogin": "WebAuthn Login",
+    "logout": "Logout",
+    "welcome": "Welcome"
+}

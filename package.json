@@ -9,7 +9,9 @@
     "cbor": "^3.0.3",
     "cookie-parser": "^1.4.3",
     "cookie-session": "^2.0.0-beta.3",
-    "express": "^4.15.4"
+    "express": "^4.15.4",
+    "i18n": "^0.8.3",
+    "pug": "^2.0.3"
   },
   "repository": {
     "type": "git",
@@ -21,5 +23,8 @@
     "url": "https://github.com/fido-alliance//issues",
     "email": "yuriy@fidoalliance.org"
   },
-  "homepage": "https://github.com/fido-alliance/#readme"
+  "homepage": "https://github.com/fido-alliance/#readme",
+  "scripts": {
+    "start": "node app.js"
+  }
 }

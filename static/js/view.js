@@ -3,7 +3,7 @@
  */
 $('#toLogin').click(function(e) {
     e.preventDefault();
-    $('#registerContainer').hide();
+    $('.column').hide();
     $('#loginContainer').show();
 })
 
@@ -12,7 +12,7 @@ $('#toLogin').click(function(e) {
  */
 $('#toRegistration').click(function(e) {
     e.preventDefault();
-    $('#loginContainer').hide();
+    $('.column').hide();
     $('#registerContainer').show();
 })
 
@@ -23,8 +23,7 @@ let loadMainContainer = () => {
             if(response.status === 'ok') {
                 $('#theSecret').html(response.theSecret)
                 $('#name').html(response.name)
-                $('#registerContainer').hide();
-                $('#loginContainer').hide();
+                $('.column').hide();
                 $('#mainContainer').show();
             } else {
                 alert(`Error! ${response.message}`)
@@ -47,7 +46,6 @@ let checkIfLoggedIn = () => {
 $('#logoutButton').click(() => {
     fetch('/logout', {credentials: 'include'});
 
-    $('#registerContainer').hide();
-    $('#mainContainer').hide();
+    $('.column').hide();
     $('#loginContainer').show();
 })

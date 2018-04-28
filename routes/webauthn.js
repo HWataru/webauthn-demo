@@ -27,12 +27,18 @@ router.post('/register', (request, response) => {
         return
     }
 
-    database[username] = {
-        'name': name,
-        'registered': false,
-        'id': utils.randomBase64URLBuffer(),
-        'authenticators': []
+    if(!database[username]){
+        database[username] = {
+            'name': name,
+            'registered': false,
+            'id': utils.randomBase64URLBuffer(),
+            'authenticators': []    
+        };
+    } else {
+        database[username].registered = false;
+        database[username].authenticators = [];
     }
+
 
     let challengeMakeCred    = utils.generateServerMakeCredRequest(username, name, database[username].id)
     challengeMakeCred.status = 'ok'
@@ -55,7 +61,7 @@ router.post('/login', (request, response) => {
 
     let username = request.body.username;
 
-    if(!database[username] || !database[username].registered) {
+    if(!database[username]) {
         response.json({
             'status': 'failed',
             'message': `User ${username} does not exist!`
@@ -63,6 +69,16 @@ router.post('/login', (request, response) => {
 
         return
     }
+
+    if(!database[username].registered) {
+        response.json({
+            'status': 'failed',
+            'message': `User ${username} does not registered!`
+        })
+
+        return
+    }
+
 
     let getAssertion    = utils.generateServerGetAssertion(database[username].authenticators)
     getAssertion.status = 'ok'

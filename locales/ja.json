@@ -1,0 +1,16 @@
+{
+    "title": "WebAuthn サンプル",
+    "name": "表示名",
+    "username": "ユーザネーム",
+    "password": "パスワード",
+    "register": "登録画面",
+    "login": "Login Page",
+    "loginButton": "ログイン",
+    "registerButton": "新規登録",
+    "toRegister": "まだ登録していませんか？新規登録ページへ",
+    "toLogin": "ログインページに戻る",
+    "toPasswordLogin": "パスワードログイン",
+    "toWebAuthnLogin": "WebAuthn ログイン",
+    "logout": "ログアウト",
+    "welcome": "ようこそ "
+}

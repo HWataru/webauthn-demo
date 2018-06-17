@@ -10,7 +10,7 @@ const config        = require('./config.json');
 const defaultroutes = require('./routes/default');
 const passwordauth  = require('./routes/password');
 const webuathnauth  = require('./routes/webauthn.js');
-const db            = require('./routes/dbutil.js');
+const db            = require('./routes/dbrouter.js');
 const app           = express();
 const i18n          = require("i18n");
 

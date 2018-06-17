@@ -12,5 +12,7 @@
     "toPasswordLogin": "パスワードログイン",
     "toWebAuthnLogin": "WebAuthn ログイン",
     "logout": "ログアウト",
-    "welcome": "ようこそ "
+    "welcome": "ようこそ ",
+    "idlessLogin": "登録したキーでのログイン",
+    "requireResidentKey": "ログイン情報をキーに保存"
 }

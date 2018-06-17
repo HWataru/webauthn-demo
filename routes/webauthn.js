@@ -4,6 +4,7 @@ const config    = require('../config.json');
 const base64url = require('base64url');
 const router    = express.Router();
 const database  = require('./db');
+const dbutils = require('./dbutils');
 
 router.post('/register', (request, response) => {
     if(!request.body || !request.body.username || !request.body.name) {
@@ -50,24 +51,30 @@ router.post('/register', (request, response) => {
 })
 
 router.post('/login', (request, response) => {
+    if(request.body && request.body.loginWithResidentKey){
+        let getAssertion    = utils.generateServerGetAssertion()
+        getAssertion.status = 'ok';
+        request.session.challenge = getAssertion.challenge;
+        response.json(getAssertion)
+        return;
+    }
     if(!request.body || !request.body.username) {
+
         response.json({
             'status': 'failed',
             'message': 'Request missing username field!'
         })
-
         return
     }
 
     let username = request.body.username;
 
     if(!database[username]) {
-        response.json({
+         response.json({
             'status': 'failed',
             'message': `User ${username} does not exist!`
         })
 
-        return
     }
 
     if(!database[username].registered) {
@@ -131,6 +138,12 @@ router.post('/response', (request, response) => {
         }
     } else if(webauthnResp.response.authenticatorData !== undefined) {
         /* This is get assertion */
+        var username = request.session.username;
+        if(!request.session.username){
+            var credentialId = webauthnResp.rawId;
+            username = dbutils.getUsernameFromCredentialID(credentialId);
+            request.session.username = username;
+        }
         result = utils.verifyAuthenticatorAssertionResponse(webauthnResp, database[request.session.username].authenticators);
     } else {
         response.json({

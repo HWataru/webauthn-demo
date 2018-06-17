@@ -14,7 +14,7 @@ let getMakeCredentialsChallenge = (formBody) => {
         if(response.status !== 'ok')
             throw new Error(`Server responed with error. The message is: ${response.message}`);
 
-        return response
+            return response
     })
 }
 
@@ -42,6 +42,7 @@ $('#register').submit(function(event) {
 
     let username = this.username.value;
     let name     = this.name.value;
+    let residentKey = this.requireResidentKey.checked;
 
     if(!username || !name) {
         alert('Name or username is missing!')
@@ -51,6 +52,11 @@ $('#register').submit(function(event) {
     getMakeCredentialsChallenge({username, name})
         .then((response) => {
             let publicKey = preformatMakeCredReq(response);
+            if(residentKey){
+                publicKey.authenticatorSelection = {
+                    'requireResidentKey': true
+                } 
+            }
             return navigator.credentials.create({ publicKey })
         })
         .then((response) => {
@@ -97,6 +103,31 @@ $('#login').submit(function(event) {
     }
 
     getGetAssertionChallenge({username})
+        .then((response) => {
+            console.log(response)
+            let publicKey = preformatGetAssertReq(response);
+            return navigator.credentials.get({ publicKey })
+        })
+        .then((response) => {
+            console.log()
+            let getAssertionResponse = publicKeyCredentialToJSON(response);
+            return sendWebAuthnResponse(getAssertionResponse)
+        })
+        .then((response) => {
+            if(response.status === 'ok') {
+                loadMainContainer()   
+            } else {
+                alert(`Server responed with error. The message is: ${response.message}`);
+            }
+        })
+        .catch((error) => alert(error))
+})
+
+//Login with residentKey
+$('#loginWithResidentKey').submit(function(event) {
+    event.preventDefault();
+    const loginWithResidentKey = true;
+    getGetAssertionChallenge({loginWithResidentKey})
         .then((response) => {
             console.log(response)
             let publicKey = preformatGetAssertReq(response);

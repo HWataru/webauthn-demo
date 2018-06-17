@@ -11,5 +11,7 @@
     "toPasswordLogin": "Password Login",
     "toWebAuthnLogin": "WebAuthn Login",
     "logout": "Logout",
-    "welcome": "Welcome"
+    "welcome": "Welcome",
+    "idlessLogin": "Login with ResidentKey",
+    "requireResidentKey": "Save Credential to your key"
 }

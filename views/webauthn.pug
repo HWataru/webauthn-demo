@@ -9,7 +9,11 @@ block content
           input(type='text', name='name')
           label(for='username')= locale.username
           input(type='text', name='username')
+          p
+            input(type="checkbox", name="requireResidentKey")
+            label(style="display:inline",for='requireResidentKey')= locale.requireResidentKey
           input.button-primary(type='submit', value=locale.registerButton)
+          
       a#toLogin(href='#')= locale.toLogin
   #loginContainer.column
     a(href='./?mode=password')= locale.toPasswordLogin
@@ -20,4 +24,7 @@ block content
           label(for='nameField')= locale.username
           input(type='text', name='username')
           input.button-primary(type='submit', value=locale.loginButton)
+      form#loginWithResidentKey
+        fieldset
+          input.button-primary(type="submit",value=locale.idlessLogin)
       a#toRegistration(href='#')= locale.toRegister

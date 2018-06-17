@@ -71,6 +71,11 @@ let generateServerMakeCredRequest = (username, displayName, id) => {
  * @return {PublicKeyCredentialRequestOptions} - server encoded get assertion request
  */
 let generateServerGetAssertion = (authenticators) => {
+    if(!authenticators){
+        return {
+            challenge: randomBase64URLBuffer(32),
+        }    
+    }
     let allowCredentials = [];
     for(let authr of authenticators) {
         allowCredentials.push({
@@ -85,6 +90,16 @@ let generateServerGetAssertion = (authenticators) => {
     }
 }
 
+/**
+ * Generates getAssertion request
+ * @param  {Array} authenticators              - list of registered authenticators
+ * @return {PublicKeyCredentialRequestOptions} - server encoded get assertion request
+ */
+let generateServerGetAssertionForFIDO2 = (authenticators) => {
+    return {
+        challenge: randomBase64URLBuffer(32),
+    }
+}
 
 /**
  * Returns SHA-256 digest of the given data.
@@ -190,7 +205,7 @@ let parseMakeCredAuthData = (buffer) => {
     let credID        = buffer.slice(0, credIDLen);   buffer = buffer.slice(credIDLen);
     let COSEPublicKey = buffer;
 
-    return {rpIdHash, flagsBuf, flags, counter, counterBuf, aaguid, credID, COSEPublicKey}
+    return {rpIdHash, flagsBuf, flags, counter, counterBuf, aaguid, credID, credIDLenBuf, COSEPublicKey}
 }
 
 let verifyAuthenticatorAttestationResponse = (webAuthnResponse) => {
@@ -217,6 +232,40 @@ let verifyAuthenticatorAttestationResponse = (webAuthnResponse) => {
         if(response.verified) {
             response.authrInfo = {
                 fmt: 'fido-u2f',
+                publicKey: base64url.encode(publicKey),
+                counter: authrDataStruct.counter,
+                credID: base64url.encode(authrDataStruct.credID)
+            }
+        }
+    }else if (ctapMakeCredResp.fmt === 'packed'){
+        let authrDataStruct = parseMakeCredAuthData(ctapMakeCredResp.authData);
+
+        if(!(authrDataStruct.flags & U2F_USER_PRESENTED))
+            throw new Error('User was NOT presented durring authentication!');
+
+        let clientDataHash  = hash(base64url.toBuffer(webAuthnResponse.response.clientDataJSON))
+        let reservedByte    = Buffer.from([0x00]);
+        let publicKey       = COSEECDHAtoPKCS(authrDataStruct.COSEPublicKey)
+        let signatureBase   = Buffer.concat(
+            [
+                authrDataStruct.rpIdHash, 
+                authrDataStruct.flagsBuf, 
+                authrDataStruct.counterBuf, 
+                authrDataStruct.aaguid,
+                authrDataStruct.credIDLenBuf, 
+                authrDataStruct.credID, 
+                authrDataStruct.COSEPublicKey,
+                clientDataHash
+            ]);
+
+        let PEMCertificate = ASN1toPEM(ctapMakeCredResp.attStmt.x5c[0]);
+        let signature      = ctapMakeCredResp.attStmt.sig;
+
+        response.verified = verifySignature(signature, signatureBase, PEMCertificate)
+
+        if(response.verified) {
+            response.authrInfo = {
+                fmt: 'packed',
                 publicKey: base64url.encode(publicKey),
                 counter: authrDataStruct.counter,
                 credID: base64url.encode(authrDataStruct.credID)
@@ -283,7 +332,35 @@ let verifyAuthenticatorAssertionResponse = (webAuthnResponse, authenticators) =>
 
             authr.counter = authrDataStruct.counter
         }
+    }else if(authr.fmt === 'packed') {
+        let authrDataStruct  = parseGetAssertAuthData(authenticatorData);
+
+        if(!(authrDataStruct.flags & U2F_USER_PRESENTED))
+            throw new Error('User was NOT presented durring authentication!');
+
+        let clientDataHash   = hash(base64url.toBuffer(webAuthnResponse.response.clientDataJSON))
+        let signatureBase    = Buffer.concat(
+            [
+                authrDataStruct.rpIdHash, 
+                authrDataStruct.flagsBuf, 
+                authrDataStruct.counterBuf,
+                clientDataHash
+            ]
+        );
+
+        let publicKey = ASN1toPEM(base64url.toBuffer(authr.publicKey));
+        let signature = base64url.toBuffer(webAuthnResponse.response.signature);
+
+        response.verified = verifySignature(signature, signatureBase, publicKey)
+
+        if(response.verified) {
+            if(response.counter <= authr.counter)
+                throw new Error('Authr counter did not increase!');
+
+            authr.counter = authrDataStruct.counter
+        }
     }
+
 
     return response
 }

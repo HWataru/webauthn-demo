@@ -16,10 +16,10 @@ const i18n          = require("i18n");
 
 i18n.configure({
   locales: ['ja', 'en'],
-  defaultLocale: 'ja',
   directory: __dirname + "/locales",
   objectNotation: true
 });
+app.use(i18n.init);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -41,15 +41,6 @@ app.use('/', defaultroutes)
 app.use('/password', passwordauth)
 app.use('/webauthn', webuathnauth)
 app.use('/db', db)
-
-app.use(i18n.init);
-app.use(function (req, res, next) {
-  if (req.session.locale) {
-    i18n.setLocale(req, req.session.locale);
-  }
-  console.log(req.session);
-  next();
-});
 
 const port = config.port || 3000;
 app.listen(port);

@@ -43,12 +43,12 @@ router.get('/personalInfo', (request, response) => {
             'message': 'Access denied'
         })
     } else {
+        response.set('Cache-Control', 'no-cache, no-store, must-revalidate');
         response.json({
             'status': 'ok',
             'name': database[request.session.username].name,
-            'theSecret': '<img width="250px" src="img/theworstofthesecrets.jpg">'
+            'theSecret': '<img src="https://source.unsplash.com/random/250x250">'
         })
     }
 })
-
 module.exports = router;

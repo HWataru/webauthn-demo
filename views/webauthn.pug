@@ -28,3 +28,8 @@ block content
         fieldset
           input.button-primary(type="submit",value=locale.idlessLogin)
       a#toRegistration(href='#')= locale.toRegister
+    .column(style='text-align:right; margin-bottom:0')
+        p(style='margin-bottom:0')="Forked from "
+            a(href="https://github.com/fido-alliance/webauthn-demo", target='_blank')= "fido-alliance/webauthn-demo"
+        p(style='margin-bottom:0')="More info "
+          a(href="https://blog.haniyama.com/2018/06/17/edge-support-webauthn/", target='_blank')= "my blog(japanese)"

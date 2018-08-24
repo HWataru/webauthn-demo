@@ -1,4 +1,4 @@
 {
-    "port": 3000,
-    "origin": "http://localhost:3000"
+    "port": 443,
+    "origin": "https://webauthn-tutorial.now.sh"
 }

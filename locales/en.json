@@ -13,5 +13,6 @@
     "logout": "Logout",
     "welcome": "Welcome",
     "idlessLogin": "Login with ResidentKey",
-    "requireResidentKey": "Save Credential to your key"
+    "requireResidentKey": "Save Credential to your key",
+    "userVerification": "userVerification"
 }

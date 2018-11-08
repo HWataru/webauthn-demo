@@ -6,12 +6,20 @@ block content
       form#register
         fieldset
           label(for='name')= locale.name
-          input(type='text', name='name')
+          input(type='text', name='displayName')
           label(for='username')= locale.username
           input(type='text', name='username')
           p
             input(type="checkbox", name="requireResidentKey")
             label(style="display:inline",for='requireResidentKey')= locale.requireResidentKey
+            
+            label(for='userVerification')= locale.userVerification
+            select(name="userVerification")
+              option(value="preferred")= 'preferred(default)'
+              option(value="required")=  'required'
+              option(value="discouraged")= 'discouraged'
+
+
           input.button-primary(type='submit', value=locale.registerButton)
           
       a#toLogin(href='#')= locale.toLogin

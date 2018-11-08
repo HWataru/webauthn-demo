@@ -14,5 +14,6 @@
     "logout": "ログアウト",
     "welcome": "ようこそ ",
     "idlessLogin": "登録したキーでのログイン",
-    "requireResidentKey": "ログイン情報をキーに保存"
+    "requireResidentKey": "ログイン情報をキーに保存",
+    "userVerification": "PIN などでのユーザ確認を必須にする"
 }

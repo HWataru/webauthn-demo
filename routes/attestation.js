@@ -6,8 +6,11 @@ const router    = express.Router();
 const database  = require('./db');
 const dbutils = require('./dbutils');
 
-router.post('/register', (request, response) => {
-    if(!request.body || !request.body.username || !request.body.name) {
+
+router.post('/options', (request, response) => {
+    console.log(request.body)
+
+    if(!request.body || !request.body.username || !request.body.displayName) {
         response.json({
             'status': 'failed',
             'message': 'Request missing name or username field!'
@@ -17,7 +20,9 @@ router.post('/register', (request, response) => {
     }
 
     let username = request.body.username;
-    let name     = request.body.name;
+    let name     = request.body.displayName;
+    let attestation = request.body.attestation;
+    let authenticatorSelection = request.body.authenticatorSelection;
 
     if(database[username] && database[username].registered) {
         response.json({
@@ -33,7 +38,7 @@ router.post('/register', (request, response) => {
             'name': name,
             'registered': false,
             'id': utils.randomBase64URLBuffer(),
-            'authenticators': []    
+            'authenticators': []
         };
     } else {
         database[username].registered = false;
@@ -41,62 +46,20 @@ router.post('/register', (request, response) => {
     }
 
 
-    let challengeMakeCred    = utils.generateServerMakeCredRequest(username, name, database[username].id)
+    let challengeMakeCred    = utils.generateServerMakeCredRequest(username, name, database[username].id, attestation, authenticatorSelection)
     challengeMakeCred.status = 'ok'
+    challengeMakeCred.errorMessage = ""
 
     request.session.challenge = challengeMakeCred.challenge;
     request.session.username  = username;
 
+    console.log(challengeMakeCred)
     response.json(challengeMakeCred)
 })
 
-router.post('/login', (request, response) => {
-    if(request.body && request.body.loginWithResidentKey){
-        let getAssertion    = utils.generateServerGetAssertion()
-        getAssertion.status = 'ok';
-        request.session.challenge = getAssertion.challenge;
-        response.json(getAssertion)
-        return;
-    }
-    if(!request.body || !request.body.username) {
 
-        response.json({
-            'status': 'failed',
-            'message': 'Request missing username field!'
-        })
-        return
-    }
-
-    let username = request.body.username;
-
-    if(!database[username]) {
-         response.json({
-            'status': 'failed',
-            'message': `User ${username} does not exist!`
-        })
-
-    }
-
-    if(!database[username].registered) {
-        response.json({
-            'status': 'failed',
-            'message': `User ${username} does not registered!`
-        })
-
-        return
-    }
-
-
-    let getAssertion    = utils.generateServerGetAssertion(database[username].authenticators)
-    getAssertion.status = 'ok'
-
-    request.session.challenge = getAssertion.challenge;
-    request.session.username  = username;
-
-    response.json(getAssertion)
-})
-
-router.post('/response', (request, response) => {
+router.post('/result', (request, response) => {
+    console.log(request.body)
     if(!request.body       || !request.body.id
     || !request.body.rawId || !request.body.response
     || !request.body.type  || request.body.type !== 'public-key' ) {
@@ -105,6 +68,26 @@ router.post('/response', (request, response) => {
             'message': 'Response missing one or more of id/rawId/response/type fields, or type is not public-key!'
         })
 
+        return
+    }
+
+    if(typeof request.body.id !== 'string' || typeof request.body.rawId !== 'string'){
+        response.json({
+            'status': 'failed',
+            'message': 'id and rawId should be Dom string'
+        })
+
+        return
+    }
+
+    try {
+        let result = base64url.decode(request.body.id)
+        console.log(result)
+    } catch (error) {
+        response.json({
+            'status': 'failed',
+            'message': 'id must encode as base64url'
+        })
         return
     }
 
@@ -136,20 +119,6 @@ router.post('/response', (request, response) => {
             database[request.session.username].authenticators.push(result.authrInfo);
             database[request.session.username].registered = true
         }
-    } else if(webauthnResp.response.authenticatorData !== undefined) {
-        /* This is get assertion */
-        var username = request.session.username;
-        if(!request.session.username){
-            var credentialId = webauthnResp.rawId;
-            username = dbutils.getUsernameFromCredentialID(credentialId);
-            request.session.username = username;
-        }
-        result = utils.verifyAuthenticatorAssertionResponse(webauthnResp, database[request.session.username].authenticators);
-    } else {
-        response.json({
-            'status': 'failed',
-            'message': 'Can not determine type of response!'
-        })
     }
 
     if(result.verified) {

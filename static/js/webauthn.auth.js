@@ -1,7 +1,7 @@
 'use strict';
 
 let getMakeCredentialsChallenge = (formBody) => {
-    return fetch('/webauthn/register', {
+    return fetch('/attestation/options', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -18,8 +18,26 @@ let getMakeCredentialsChallenge = (formBody) => {
     })
 }
 
-let sendWebAuthnResponse = (body) => {
-    return fetch('/webauthn/response', {
+let sendAssertionResponse = (body) => {
+    return fetch('/assertion/result', {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(body)
+    })
+    .then((response) => response.json())
+    .then((response) => {
+        if(response.status !== 'ok')
+            throw new Error(`Server responed with error. The message is: ${response.message}`);
+
+        return response
+    })
+}
+
+let sendAttestationResponse = (body) => {
+    return fetch('/attestation/result', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -41,27 +59,26 @@ $('#register').submit(function(event) {
     event.preventDefault();
 
     let username = this.username.value;
-    let name     = this.name.value;
+    let displayName     = this.displayName.value;
     let residentKey = this.requireResidentKey.checked;
+    let userVerification = this.userVerification.value;
 
-    if(!username || !name) {
-        alert('Name or username is missing!')
+    if(!username || !displayName) {
+        alert('displayName or username is missing!')
         return
     }
 
-    getMakeCredentialsChallenge({username, name})
+    getMakeCredentialsChallenge({username, displayName})
         .then((response) => {
             let publicKey = preformatMakeCredReq(response);
-            if(residentKey){
-                publicKey.authenticatorSelection = {
-                    'requireResidentKey': true
-                } 
-            }
+            publicKey.authenticatorSelection = {}
+            publicKey.authenticatorSelection["userVerification"] = userVerification; 
+            if(residentKey)publicKey.authenticatorSelection['requireResidentKey'] = true;
             return navigator.credentials.create({ publicKey })
         })
         .then((response) => {
             let makeCredResponse = publicKeyCredentialToJSON(response);
-            return sendWebAuthnResponse(makeCredResponse)
+            return sendAttestationResponse(makeCredResponse)
         })
         .then((response) => {
             if(response.status === 'ok') {
@@ -74,7 +91,7 @@ $('#register').submit(function(event) {
 })
 
 let getGetAssertionChallenge = (formBody) => {
-    return fetch('/webauthn/login', {
+    return fetch('/assertion/options', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -111,7 +128,7 @@ $('#login').submit(function(event) {
         .then((response) => {
             console.log()
             let getAssertionResponse = publicKeyCredentialToJSON(response);
-            return sendWebAuthnResponse(getAssertionResponse)
+            return sendAssertionResponse(getAssertionResponse, 'assertion')
         })
         .then((response) => {
             if(response.status === 'ok') {
@@ -136,7 +153,7 @@ $('#loginWithResidentKey').submit(function(event) {
         .then((response) => {
             console.log()
             let getAssertionResponse = publicKeyCredentialToJSON(response);
-            return sendWebAuthnResponse(getAssertionResponse)
+            return sendAssertionResponse(getAssertionResponse)
         })
         .then((response) => {
             if(response.status === 'ok') {

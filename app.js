@@ -9,7 +9,8 @@ const crypto        = require('crypto');
 const config        = require('./config.json');
 const defaultroutes = require('./routes/default');
 const passwordauth  = require('./routes/password');
-const webuathnauth  = require('./routes/webauthn.js');
+const attestation   = require('./routes/attestation.js');
+const assertion     = require('./routes/assertion.js');
 const db            = require('./routes/dbrouter.js');
 const app           = express();
 const i18n          = require("i18n");
@@ -39,7 +40,8 @@ app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'static')));
 app.use('/', defaultroutes)
 app.use('/password', passwordauth)
-app.use('/webauthn', webuathnauth)
+app.use('/attestation', attestation)
+app.use('/assertion', assertion)
 app.use('/db', db)
 
 const port = config.port || 3000;

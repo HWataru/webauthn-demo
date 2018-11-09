@@ -12,16 +12,23 @@ block content
           p
             input(type="checkbox", name="requireResidentKey")
             label(style="display:inline",for='requireResidentKey')= locale.requireResidentKey
-            
+
             label(for='userVerification')= locale.userVerification
             select(name="userVerification")
               option(value="preferred")= 'preferred(default)'
               option(value="required")=  'required'
               option(value="discouraged")= 'discouraged'
 
+            label(for='attestation')= locale.attestation
+            select(name="attestation")
+              option(value="none")= 'none(default)'
+              option(value="direct")=  'direct'
+              option(value="indirect")= 'indirect'
+
+
 
           input.button-primary(type='submit', value=locale.registerButton)
-          
+
       a#toLogin(href='#')= locale.toLogin
   #loginContainer.column
     a(href='./?mode=password')= locale.toPasswordLogin

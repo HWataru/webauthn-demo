@@ -14,5 +14,6 @@
     "welcome": "Welcome",
     "idlessLogin": "Login with ResidentKey",
     "requireResidentKey": "Save Credential to your key",
-    "userVerification": "userVerification"
+    "userVerification": "userVerification",
+    "attestation": "attestation"
 }

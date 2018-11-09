@@ -15,5 +15,6 @@
     "welcome": "ようこそ ",
     "idlessLogin": "登録したキーでのログイン",
     "requireResidentKey": "ログイン情報をキーに保存",
-    "userVerification": "PIN などでのユーザ確認を必須にする"
+    "userVerification": "PIN・指紋でのユーザ確認を必須にする",
+    "attestation": "attestation"
 }

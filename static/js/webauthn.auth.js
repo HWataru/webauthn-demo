@@ -62,18 +62,28 @@ $('#register').submit(function(event) {
     let displayName     = this.displayName.value;
     let residentKey = this.requireResidentKey.checked;
     let userVerification = this.userVerification.value;
+    let attestation = this.attestation.value;
 
     if(!username || !displayName) {
         alert('displayName or username is missing!')
         return
     }
 
-    getMakeCredentialsChallenge({username, displayName})
+    let authenticatorSelection = {
+        userVerification
+    }
+    if(residentKey){
+        authenticatorSelection['requireResidentKey'] = true;
+    }
+
+    getMakeCredentialsChallenge(
+        {   username,
+            displayName,
+            attestation,
+            authenticatorSelection
+        })
         .then((response) => {
             let publicKey = preformatMakeCredReq(response);
-            publicKey.authenticatorSelection = {}
-            publicKey.authenticatorSelection["userVerification"] = userVerification; 
-            if(residentKey)publicKey.authenticatorSelection['requireResidentKey'] = true;
             return navigator.credentials.create({ publicKey })
         })
         .then((response) => {
@@ -82,7 +92,7 @@ $('#register').submit(function(event) {
         })
         .then((response) => {
             if(response.status === 'ok') {
-                loadMainContainer()   
+                loadMainContainer()
             } else {
                 alert(`Server responed with error. The message is: ${response.message}`);
             }
@@ -132,7 +142,7 @@ $('#login').submit(function(event) {
         })
         .then((response) => {
             if(response.status === 'ok') {
-                loadMainContainer()   
+                loadMainContainer()
             } else {
                 alert(`Server responed with error. The message is: ${response.message}`);
             }
@@ -157,7 +167,7 @@ $('#loginWithResidentKey').submit(function(event) {
         })
         .then((response) => {
             if(response.status === 'ok') {
-                loadMainContainer()   
+                loadMainContainer()
             } else {
                 alert(`Server responed with error. The message is: ${response.message}`);
             }

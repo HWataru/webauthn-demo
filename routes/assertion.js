@@ -6,6 +6,19 @@ const dbutils = require('./dbutils');
 
 router.post('/options', (request, response) => {
 
+    let userVerificationRequired = request.body.userVerification;
+    if(!userVerificationRequired){
+        userVerificationRequired = 'discouraged'
+    }
+
+    if (request.body.loginWithResidentKey) {
+        let getAssertion = utils.generateServerGetAssertion()
+        getAssertion.status = 'ok';
+        request.session.challenge = getAssertion.challenge;
+        response.json(getAssertion)
+        return;
+    }
+
     if (!request.body || !request.body.username) {
 
         response.json({
@@ -13,17 +26,6 @@ router.post('/options', (request, response) => {
             'message': 'Request missing username field!'
         })
         return
-    }
-
-    const userVerificationRequired = request.body.userVerification;
-
-    if (request.body.loginWithResidentKey) {
-        let getAssertion = utils.generateServerGetAssertion()
-        getAssertion.status = 'ok';
-        getAssertion.userVerificationRequired = userVerificationRequired;
-        request.session.challenge = getAssertion.challenge;
-        response.json(getAssertion)
-        return;
     }
 
     let username = request.body.username;
